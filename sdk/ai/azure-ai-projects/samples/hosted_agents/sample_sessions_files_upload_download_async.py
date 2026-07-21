@@ -12,7 +12,7 @@ DESCRIPTION:
     Sessions only work with Hosted Agents.
 
     Sessions are currently a preview feature. In the Python SDK, you access
-    these operations via `project_client.beta.agents`.
+    these operations via `project_client.agents`.
 
 USAGE:
     python sample_sessions_files_upload_download_async.py
@@ -65,32 +65,37 @@ async def main():
         ) as project_client,
     ):
         agent = await get_latest_active_agent_version_async(project_client, agent_name)
-        session = await project_client.beta.agents.create_session(
+        session = await project_client.agents.create_session(
             agent_name=agent_name,
             version_indicator=VersionRefIndicator(agent_version=agent.version),
         )
         print(f"Session created (id: {session.agent_session_id}, status: {session.status})")
         try:
             # Upload and list session files
-            await project_client.beta.agents.upload_session_file(
+            print(f"Uploading session file: {data_file1} -> {remote_file_path1}")
+            with open(data_file1, "rb") as f:
+                file_data1 = f.read()
+            await project_client.agents.upload_session_file(
                 agent_name=agent_name,
                 session_id=session.agent_session_id,
-                content_or_file_path=data_file1,
+                content=file_data1,
                 path=remote_file_path1,
             )
 
             print(f"Uploading session file: {data_file2} -> {remote_file_path2}")
-            await project_client.beta.agents.upload_session_file(
+            with open(data_file2, "rb") as f:
+                file_data2 = f.read()
+            await project_client.agents.upload_session_file(
                 agent_name=agent_name,
                 session_id=session.agent_session_id,
-                content_or_file_path=data_file2,
+                content=file_data2,
                 path=remote_file_path2,
             )
 
             print("Listing session files for the session at path '.'...")
-            files = project_client.beta.agents.list_session_files(
+            files = project_client.agents.list_session_files(
                 agent_name=agent_name,
-                agent_session_id=session.agent_session_id,
+                session_id=session.agent_session_id,
                 path="/remote",
             )
             async for entry in files:
@@ -98,9 +103,9 @@ async def main():
 
             print(f"Downloading and printing content from '{remote_file_path1}'")
             content_bytes = b""
-            async for chunk in await project_client.beta.agents.download_session_file(
+            async for chunk in await project_client.agents.download_session_file(
                 agent_name=agent_name,
-                agent_session_id=session.agent_session_id,
+                session_id=session.agent_session_id,
                 path=remote_file_path1,
             ):
                 content_bytes += chunk
@@ -108,20 +113,20 @@ async def main():
             print(f"Session file content ({remote_file_path1}):\n{file_content}")
 
             print(f"Deleting session file at path: {remote_file_path1}...")
-            await project_client.beta.agents.delete_session_file(
+            await project_client.agents.delete_session_file(
                 agent_name=agent_name,
-                agent_session_id=session.agent_session_id,
+                session_id=session.agent_session_id,
                 path=remote_file_path1,
             )
 
             print(f"Deleting session file at path: {remote_file_path2}...")
-            await project_client.beta.agents.delete_session_file(
+            await project_client.agents.delete_session_file(
                 agent_name=agent_name,
-                agent_session_id=session.agent_session_id,
+                session_id=session.agent_session_id,
                 path=remote_file_path2,
             )
         finally:
-            await project_client.beta.agents.delete_session(
+            await project_client.agents.delete_session(
                 agent_name=agent_name,
                 session_id=session.agent_session_id,
             )

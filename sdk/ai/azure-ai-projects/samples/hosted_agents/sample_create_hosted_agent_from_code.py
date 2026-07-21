@@ -51,8 +51,6 @@ from azure.identity import DefaultAzureCredential
 from azure.ai.projects import AIProjectClient
 from azure.ai.projects.models import (
     CodeConfiguration,
-    CreateAgentVersionFromCodeContent,
-    CreateAgentVersionFromCodeMetadata,
     HostedAgentDefinition,
     ProtocolVersionRecord,
 )
@@ -73,26 +71,20 @@ with (
     DefaultAzureCredential() as credential,
     AIProjectClient(endpoint=endpoint, credential=credential, allow_preview=True) as project_client,
 ):
-    content = CreateAgentVersionFromCodeContent(
-        metadata=CreateAgentVersionFromCodeMetadata(
-            description=f"Code-based hosted agent uploaded with dependency_resolution={dependency_resolution.value}.",
-            definition=HostedAgentDefinition(
-                cpu="0.5",
-                memory="1Gi",
-                code_configuration=CodeConfiguration(
-                    runtime="python_3_12",
-                    entry_point=["python", "main.py"],
-                    dependency_resolution=dependency_resolution,
-                ),
-                protocol_versions=[ProtocolVersionRecord(protocol="responses", version="1.0.0")],
+    created = project_client.agents.create_version(
+        agent_name=agent_name,
+        description=f"Code-based hosted agent uploaded with dependency_resolution={dependency_resolution.value}.",
+        definition=HostedAgentDefinition(
+            cpu="0.5",
+            memory="1Gi",
+            code_configuration=CodeConfiguration(
+                runtime="python_3_12",
+                entry_point=["python", "main.py"],
+                dependency_resolution=dependency_resolution,
             ),
+            protocol_versions=[ProtocolVersionRecord(protocol="responses", version="1.0.0")],
         ),
         code=(zip_filename, code_zip_bytes, "application/zip"),
-    )
-
-    created = project_client.beta.agents.create_version_from_code(
-        agent_name=agent_name,
-        content=content,
         code_zip_sha256=code_zip_sha256,
     )
     print(f"Created code-based hosted agent version: {created.version}")
@@ -114,7 +106,7 @@ with (
     version_zip_path = Path(tempfile.gettempdir()) / f"{agent_name}-{created.version}.zip"
     sha = hashlib.sha256()
     with open(version_zip_path, "wb") as f:
-        for chunk in project_client.beta.agents.download_code(
+        for chunk in project_client.agents.download_code(
             agent_name=agent_name,
             agent_version=created.version,
         ):
