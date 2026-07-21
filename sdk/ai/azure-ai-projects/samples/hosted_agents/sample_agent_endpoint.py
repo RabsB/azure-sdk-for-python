@@ -15,8 +15,8 @@ DESCRIPTION:
 
     Session and Agent endpoint operations are currently preview features.
     In the Python SDK, you access these operations via
-    `project_client.beta.agents`.
-
+    `project_client.agents`.
+    
 USAGE:
     python sample_agent_endpoint.py
 
@@ -65,7 +65,7 @@ with (
 
     agent = get_latest_active_agent_version(project_client, agent_name)
 
-    session = project_client.beta.agents.create_session(
+    session = project_client.agents.create_session(
         agent_name=agent_name,
         version_indicator=VersionRefIndicator(agent_version=agent.version),
     )
@@ -74,15 +74,15 @@ with (
         # Configure endpoint routing so this agent name serves the created version.
         # 100% of traffic is routed to the single created version.
         endpoint_config = AgentEndpointConfig(
-            version_selector=VersionSelector(
-                version_selection_rules=[
+            version_selection_strategy=VersionSelector(
+                rules=[
                     FixedRatioVersionSelectionRule(agent_version=agent.version, traffic_percentage=100),
                 ]
             ),
             protocols=[AgentEndpointProtocol.RESPONSES],
         )
 
-        patched_agent = project_client.beta.agents.patch_agent_details(
+        patched_agent = project_client.agents.update_details(
             agent_name=agent_name,
             agent_endpoint=endpoint_config,
         )
@@ -100,7 +100,7 @@ with (
         )
         print(f"Response output: {response.output_text}")
     finally:
-        project_client.beta.agents.delete_session(
+        project_client.agents.delete_session(
             agent_name=agent_name,
             session_id=session.agent_session_id,
         )

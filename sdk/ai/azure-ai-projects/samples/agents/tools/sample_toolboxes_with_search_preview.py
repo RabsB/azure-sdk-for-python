@@ -18,7 +18,7 @@ DESCRIPTION:
 
     Toolboxes and tool search are preview features. CRUD goes through
     'project_client.beta.toolboxes'.
-
+  
 USAGE:
     python sample_toolboxes_with_search_preview.py
 
@@ -46,7 +46,6 @@ from azure.ai.projects import AIProjectClient
 from azure.ai.projects.models import (
     MCPTool,
     PromptAgentDefinition,
-    ToolboxSearchPreviewTool,
 )
 
 load_dotenv()
@@ -72,10 +71,10 @@ with (
         project_connection_id=os.environ["MCP_PROJECT_CONNECTION_ID"],
     )
 
-    toolbox_version = project_client.beta.toolboxes.create_version(
+    toolbox_version = project_client.beta.create_toolbox_version(
         name=TOOLBOX_NAME,
         description=f"Toolbox with `{INNER_MCP_LABEL}` MCP server and tool search enabled.",
-        tools=[inner_mcp_tool, ToolboxSearchPreviewTool()],
+        tools=[inner_mcp_tool],
     )
     print(f"Created toolbox `{TOOLBOX_NAME}` (version {toolbox_version.version}).")
 

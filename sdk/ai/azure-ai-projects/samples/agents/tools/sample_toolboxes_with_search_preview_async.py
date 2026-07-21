@@ -10,7 +10,7 @@ DESCRIPTION:
     invoke it from a Prompt Agent using the asynchronous AIProjectClient and
     the OpenAI-compatible client.
 
-    A toolbox version that includes 'ToolboxSearchPreviewTool' exposes only
+    A toolbox version that includes search functionality exposes only
     two meta tools at its '/mcp' endpoint -- 'tool_search' and 'call_tool'
     -- and defers every other tool behind them. The agent uses an 'MCPTool'
     pointed at the toolbox's versioned '/mcp' URL to discover and invoke
@@ -18,10 +18,10 @@ DESCRIPTION:
 
     Toolboxes and tool search are preview features. CRUD goes through
     'project_client.beta.toolboxes'.
-
+    
 USAGE:
     python sample_toolboxes_with_search_preview_async.py
-
+    
     Before running the sample:
 
     pip install "azure-ai-projects>=2.2.0" python-dotenv openai aiohttp
@@ -46,7 +46,7 @@ from azure.ai.projects.aio import AIProjectClient
 from azure.ai.projects.models import (
     MCPTool,
     PromptAgentDefinition,
-    ToolboxSearchPreviewTool,
+    HostedAgentToolboxes,
 )
 
 load_dotenv()
@@ -73,10 +73,11 @@ async def main() -> None:
             project_connection_id=os.environ["MCP_PROJECT_CONNECTION_ID"],
         )
 
-        toolbox_version = await project_client.beta.toolboxes.create_version(
+        toolboxes_operations = HostedAgentToolboxes(project_client.beta)
+        toolbox_version = await toolboxes_operations.create_version(
             name=TOOLBOX_NAME,
-            description=f"Toolbox with `{INNER_MCP_LABEL}` MCP server and tool search enabled.",
-            tools=[inner_mcp_tool, ToolboxSearchPreviewTool()],
+            description=f"Toolbox with `{INNER_MCP_LABEL}` MCP server.",
+            tools=[inner_mcp_tool],
         )
         print(f"Created toolbox `{TOOLBOX_NAME}` (version {toolbox_version.version}).")
 
