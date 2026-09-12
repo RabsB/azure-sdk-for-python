@@ -59,17 +59,6 @@ class CheckNameAvailabilityRequest(TypedDict, total=False):
     """The resource type."""
 
 
-class ExportRequest(TypedDict, total=False):
-    """ExportRequest.
-
-    :ivar format: Format of the exported order. Required.
-    :vartype format: str
-    """
-
-    format: Required[str]
-    """Format of the exported order. Required."""
-
-
 class Resource(TypedDict, total=False):
     """Resource.
 
@@ -122,6 +111,70 @@ class TrackedResource(Resource):
     """Resource tags."""
     location: Required[str]
     """The geo-location where the resource lives. Required."""
+
+
+class Configuration(TrackedResource):
+    """Concrete tracked resource types can be created by aliasing this type using a specific property
+    type.
+
+    :ivar id: Fully qualified resource ID for the resource. Ex -
+     /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}.
+    :vartype id: str
+    :ivar name: The name of the resource.
+    :vartype name: str
+    :ivar type: The type of the resource. E.g. "Microsoft.Compute/virtualMachines" or
+     "Microsoft.Storage/storageAccounts".
+    :vartype type: str
+    :ivar systemData: Azure Resource Manager metadata containing createdBy and modifiedBy
+     information.
+    :vartype systemData: "SystemData"
+    :ivar tags: Resource tags.
+    :vartype tags: dict[str, str]
+    :ivar location: The geo-location where the resource lives. Required.
+    :vartype location: str
+    :ivar properties: The resource-specific properties for this resource.
+    :vartype properties: "ConfigurationProperties"
+    """
+
+    properties: "ConfigurationProperties"
+    """The resource-specific properties for this resource."""
+
+
+class ConfigurationProperties(TypedDict, total=False):
+    """ConfigurationProperties.
+
+    :ivar configValue: The configuration value.
+    :vartype configValue: str
+    :ivar provisioningState: The provisioning state.
+    :vartype provisioningState: str
+    """
+
+    configValue: str
+    """The configuration value."""
+    provisioningState: str
+    """The provisioning state."""
+
+
+class ExportRequest(TypedDict, total=False):
+    """ExportRequest.
+
+    :ivar format: Format of the exported order. Required.
+    :vartype format: str
+    """
+
+    format: Required[str]
+    """Format of the exported order. Required."""
+
+
+class LogStatusRequest(TypedDict, total=False):
+    """LogStatusRequest.
+
+    :ivar filter: Filter for the monitored resources.
+    :vartype filter: str
+    """
+
+    filter: str
+    """Filter for the monitored resources."""
 
 
 class Order(TrackedResource):
@@ -203,6 +256,17 @@ class SystemData(TypedDict, total=False):
      \"Application\", \"ManagedIdentity\", and \"Key\"."""
     lastModifiedAt: str
     """The timestamp of resource last modification (UTC)."""
+
+
+class VnetProfile(TypedDict, total=False):
+    """VnetProfile.
+
+    :ivar vnetId: The virtual network ID. Required.
+    :vartype vnetId: str
+    """
+
+    vnetId: Required[str]
+    """The virtual network ID. Required."""
 
 
 class Widget(TrackedResource):
