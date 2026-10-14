@@ -19,5 +19,5 @@
         "routes.RoutesClient.fixed": "Routes.fixed",
         "routes.aio.RoutesClient.fixed": "Routes.fixed"
     },
-    "CrossLanguageVersion": "c6a64c6e889c"
+    "CrossLanguageVersion": "20b6fd545e0c"
 }
